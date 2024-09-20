@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.widget.TextView;
@@ -142,8 +144,8 @@ public class CustomDialog {
         builder.setNegativeButton(negativeText, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // アプリ終了の処理
-                ((Activity) context).finish();
+                // 削除処理
+                Master_Table_DELETE();
             }
         });
 
@@ -159,5 +161,35 @@ public class CustomDialog {
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#FE4A49"));
 
     } // ========= Function END
+
+    /**
+     *  Maater_Table 削除処理
+     */
+    private void Master_Table_DELETE()
+    {
+        GlOpenHelper helper_delete = new GlOpenHelper(context.getApplicationContext());
+        SQLiteDatabase db_delete = helper_delete.getReadableDatabase();
+
+        // === トランザクション開始
+        db_delete.beginTransaction();
+
+        try {
+
+            db_delete.delete(GlOpenHelper.TABLE_NAME, null,null);
+            // === 成功時の処理
+            db_delete.setTransactionSuccessful();
+
+            System.out.println("テーブル削除処理　完了");
+
+        } catch (SQLException e) {
+
+            System.out.println("テーブル削除処理中にエラーが発生しました。");
+            e.printStackTrace();
+        } finally {
+            // === トランザクション終了処理
+            db_delete.endTransaction();
+        }
+
+    } // ======================== （Master_Table_DELETE） END
 
 }

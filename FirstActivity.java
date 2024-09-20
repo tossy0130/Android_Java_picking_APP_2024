@@ -1,12 +1,15 @@
 package com.example.oracleconnect;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -30,6 +33,8 @@ import java.util.concurrent.Executors;
 
 public class FirstActivity extends AppCompatActivity {
 
+    // === secondactivity
+    private static final int REQUEST_CODE_SECOND_ACTIVITY = 1002;
     // TextView
     private TextView date_view_top, app_title_01, sagyou_sentaku_view;
 
@@ -54,6 +59,13 @@ public class FirstActivity extends AppCompatActivity {
     private ConnectionClass connectionClass;
     private Connection con;
     private String str, name;
+
+    /**
+     *  「北陸」「首都圏DC」
+     */
+    private String YKK_Code_Hokuriku = "";
+    private String[] YKK_Code_Syutoken = new String[4];
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,12 +177,20 @@ public class FirstActivity extends AppCompatActivity {
                     isHokurikuSelected = true;
                     isSyutokenSelected = false;
 
+                    // YKK コード
+                    YKK_Code_Hokuriku = "325952";
+
+                    System.out.println("選択:北陸:::" + YKK_Code_Hokuriku.toString());
+
                 } else {
                     // 北陸ボタンが再度押されたとき、元の色に戻す
                     hokuriku_btn.setAlpha(1.0f);
                     hokuriku_btn.setTextColor(Color.parseColor("#FFFFFF"));
 
                     isHokurikuSelected = false;
+
+                    // YKK コード
+                    YKK_Code_Hokuriku = "";
                 }
             }
         }); // ================================================ 「北陸 ボタン」 END
@@ -194,12 +214,27 @@ public class FirstActivity extends AppCompatActivity {
                     isSyutokenSelected = true;
                     isHokurikuSelected = false;
 
+                    // YKK コード 首都圏
+                    YKK_Code_Syutoken[0] = "315125";
+                    YKK_Code_Syutoken[1] = "315130";
+                    YKK_Code_Syutoken[2] = "315135";
+                    YKK_Code_Syutoken[3] = "315150";
+
+                    System.out.println("選択:首都圏:::" + YKK_Code_Syutoken.toString());
+
                 } else {
                     // 首都圏ボタンが再度押されたとき、元の色に戻す
                     syutoken_btn.setAlpha(1.0f);
                     syutoken_btn.setTextColor(Color.parseColor("#FFFFFF"));
 
                     isSyutokenSelected = false;
+
+                    // YKK コード 首都圏
+                    YKK_Code_Syutoken[0] = "";
+                    YKK_Code_Syutoken[1] = "";
+                    YKK_Code_Syutoken[2] = "";
+                    YKK_Code_Syutoken[3] = "";
+
                 }
             }
         });  // ================================================ 「首都圏 ボタン」 END
@@ -223,7 +258,12 @@ public class FirstActivity extends AppCompatActivity {
                 } else {
                     // === QR 起動
                     Intent intent = new Intent(getApplication(), SecondActivity.class);
-                    startActivity(intent);
+
+                    intent.putExtra("YKK_Code_Hokuriku", YKK_Code_Hokuriku); // YKK 北陸
+                    intent.putExtra("YKK_Code_Syutoken", YKK_Code_Syutoken); // YKK 首都圏
+
+                    // SecondActivity を起動して結果を待つ
+                    startActivityForResult(intent, REQUEST_CODE_SECOND_ACTIVITY);
                 }
 
             }
@@ -263,7 +303,6 @@ public class FirstActivity extends AppCompatActivity {
                 );
             }
         });
-
 
 
         /**
@@ -356,6 +395,18 @@ public class FirstActivity extends AppCompatActivity {
     }
 
     /**
+     * 作業開始日
+     */
+    private static String getNowDate_Sagyou_Start() {
+        // DateFormatを修正して、"yyyy-MM-dd HH:mm.ss"のフォーマットを適用
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm::ss");
+        final Date date = new Date(System.currentTimeMillis());
+
+        return df.format(date);
+    }
+
+
+    /**
      * DB作成 (Master.db) AND テーブル作成 (Master_table)
      */
     private void Create_Master_DB() {
@@ -382,70 +433,167 @@ public class FirstActivity extends AppCompatActivity {
 
     public void Select_Download() {
 
+        // === インサート用　オブジェクト
+        GlOpenHelper helper_insert = new GlOpenHelper(getApplicationContext());
+        SQLiteDatabase db_insert = helper_insert.getReadableDatabase();
 
+        //----------- 削除処理 ------------
+        // トランザクション 開始 ------>
+        db_insert.beginTransaction();
+        try {
+            db_insert.delete(GlOpenHelper.TABLE_NAME, null, null);
+            // トランザクション成功処理
+            db_insert.setTransactionSuccessful();
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } finally {
+            //----------- トランザクション　完了
+            db_insert.endTransaction();
+        }
+
+
+        String Row_Data[] = new String[12];
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(() -> {
 
+            // === トランザクション開始
+            db_insert.beginTransaction();
+
             try {
+
                 con = connectionClass.Conn();
                 String query = "";
 
                 ResultSet rs = null;
                 // 「北陸」
 
-                    System.out.println("出荷先フラグ:::" + isHokurikuSelected);
+                System.out.println("出荷先フラグ:::" + isHokurikuSelected);
 
-                    // 作業日　取得
-                    String Get_Sagyou_Day = sagyou_sentaku_view.getText().toString();
+                // 作業日　取得
+                String Get_Sagyou_Day = sagyou_sentaku_view.getText().toString();
 
-                    SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy年MM月dd日");
-                    // 変換後の日付形式を指定する（yyyy-MM-dd）
-                    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy年MM月dd日");
+                // 変換後の日付形式を指定する（yyyy-MM-dd）
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-                    Date date = inputFormat.parse(Get_Sagyou_Day);
-                    String outputDate_Sagyou_Day = outputFormat.format(date);
+                Date date = inputFormat.parse(Get_Sagyou_Day);
+                String outputDate_Sagyou_Day = outputFormat.format(date);
 
-                    System.out.println("バインド　作業日:::" + outputDate_Sagyou_Day);
+                System.out.println("バインド　作業日:::" + outputDate_Sagyou_Day);
 
-                    query = "SELECT * FROM SJTR WHERE 納入先名 = ? AND 出荷日 = ?";
-                 //   query = "SELECT * FROM SJTR WHERE 納入先名 like ? AND 出荷日 = ?";
-                 //   query = "SELECT * FROM SJTR WHERE 納入先名 LIKE ? AND 出荷日 = TO_DATE(?, 'YYYY-MM-DD')";
+                query = "SELECT SK.伝票ＳＥＱ,SK.伝票行番号,SK.商品Ｃ,SK.品名,SH.品番,SK.納入先Ｃ, SK.納入先名,SUM(SL.数量) AS 数量01,SJ.出荷日\n" +
+                        "                        FROM SJTR SJ\n" +
+                        "                        JOIN SKTR SK ON SJ.伝票ＳＥＱ = SK.出荷ＳＥＱ\n" +
+                        "                        JOIN SLTR SL ON SK.伝票ＳＥＱ = SL.伝票ＳＥＱ AND SK.伝票行番号 = SL.伝票行番号\n" +
+                        "                        JOIN SHMF SH ON SL.商品Ｃ = SH.商品Ｃ\n" +
+                        "                        WHERE SK.出荷日 = ?\n" +
+                        "                        AND SK.納入先Ｃ = ? OR SK.納入先Ｃ = ?\n" +
+                        "                        GROUP BY SK.伝票ＳＥＱ,SK.伝票行番号,SK.商品Ｃ,SK.品名,SH.品番,SK.納入先Ｃ, SK.納入先名, SJ.出荷日\n" +
+                        "                        ORDER BY SK.商品Ｃ ASC";
 
-                    PreparedStatement stmt = (PreparedStatement) con.prepareStatement(query);
-                    // バインド
-                    stmt.setString(1, "ＹＫＫ北陸ＤＣ");
-                    stmt.setString(2,outputDate_Sagyou_Day);
-                    rs = stmt.executeQuery();
+                PreparedStatement stmt = (PreparedStatement) con.prepareStatement(query);
+                // バインド
+                stmt.setString(1, outputDate_Sagyou_Day);
+                stmt.setString(2,"013370");   // 納入先Ｃ => 北陸
+                stmt.setString(3,"013371");   // 納入先Ｃ => 首都圏
+                rs = stmt.executeQuery();
+
+                // === 作業日取得
+                String date_view_top_STR = date_view_top.getText().toString();
 
                 int idx = 1;
-                StringBuilder bStr = new StringBuilder("伝票ＳＥＱ,伝票番号,出荷指示日時,得意先Ｃ,得意先名,納入先Ｃ,納入先名\n");
+                StringBuilder bStr = new StringBuilder("伝票ＳＥＱ,伝票行番号,商品Ｃ,品名,納入先Ｃ,納入先名,出荷日,SUM(SL.数量) AS 数量01\n");
                 while (rs.next()) {
                     bStr.append(rs.getString("伝票ＳＥＱ")).append(",");
-                    bStr.append(rs.getString("伝票番号")).append(",");
-                    bStr.append(rs.getString("出荷指示日時")).append(",");
-                    bStr.append(rs.getString("得意先Ｃ")).append(",");
-                    bStr.append(rs.getString("得意先名")).append(",");
+                    bStr.append(rs.getString("伝票行番号")).append(",");
+                    bStr.append(rs.getString("商品Ｃ")).append(",");
+                    bStr.append(rs.getString("品名")).append(",");
                     bStr.append(rs.getString("納入先Ｃ")).append(",");
-                    bStr.append(rs.getString("納入先名")).append("\n");
+                    bStr.append(rs.getString("納入先名")).append(",");
+                    bStr.append(rs.getString("出荷日")).append(",");
+                    bStr.append(rs.getString("数量01")).append("\n");
 
-                    System.out.println(String.valueOf(idx) + ":" + bStr.toString());
+                    // === 値挿入
+                    ContentValues values = new ContentValues();
+
+                    // 【納入先Ｃ】
+                    Row_Data[0] = rs.getString("納入先Ｃ");
+                    values.put(GlOpenHelper.COLUMN_01, Row_Data[0]);
+                    // 【納入先名】
+                    Row_Data[1] = rs.getString("納入先名");
+                    values.put(GlOpenHelper.COLUMN_02, Row_Data[1]);
+                    // 【商品Ｃ】
+                    Row_Data[2] = rs.getString("商品Ｃ");
+                    values.put(GlOpenHelper.COLUMN_03, Row_Data[2]);
+                    // 【品名】
+                    Row_Data[3] = rs.getString("品名");
+                    values.put(GlOpenHelper.COLUMN_04, Row_Data[3]);
+                    // 【出荷日（ユーザ選択）】
+                    Row_Data[4] = outputDate_Sagyou_Day;
+                    values.put(GlOpenHelper.COLUMN_05, Row_Data[4]);
+                    // 【出荷数量】
+                    Row_Data[5] = rs.getString("数量01");
+                    values.put(GlOpenHelper.COLUMN_06, Row_Data[5]);
+                    // 【作業数量（ユーザスキャン）】
+                    Row_Data[6] = "0";
+                    values.put(GlOpenHelper.COLUMN_07, Row_Data[6]);
+                    // 【作業状態フラグ】　１：未作業 , ２：作業中 , ９：作業完了
+                    Row_Data[7] = "1";
+                    values.put(GlOpenHelper.COLUMN_08, Row_Data[7]);
+
+                    // 【YKK送り先コード】 YKK北陸DC => 325952 , YKK首都圏DC => 315125, 315130, 315135, 315150
+                    Row_Data[8] = "";
+                    values.put(GlOpenHelper.COLUMN_09, Row_Data[8]);
+
+                    // 【品番】
+                    Row_Data[9] = rs.getString("品番");
+                    values.put(GlOpenHelper.COLUMN_10, Row_Data[9]);
+
+                    // 作業開始日時
+                    String getNowDate_Sagyou_Start_STR = getNowDate_Sagyou_Start();
+                    Row_Data[10] = getNowDate_Sagyou_Start_STR;
+                    values.put(GlOpenHelper.COLUMN_11, Row_Data[10]);
+
+                    // 作業終了日時
+                    Row_Data[11] = "";
+                    values.put(GlOpenHelper.COLUMN_12, Row_Data[11]);
+
+
+                    //******* インサート処理
+                    db_insert.insert(GlOpenHelper.TABLE_NAME, null, values);
+
+                    //******* インサート済み　ログ　出力
+                    System.out.println("インサートデータ:" + idx + ":::" +
+                            Row_Data[0] + "," + Row_Data[1] + ","  + Row_Data[2] + "," + Row_Data[3] + "," +
+                            Row_Data[4] + "," + Row_Data[5] + ","  + Row_Data[6] + "," + Row_Data[7] + "," +
+                            Row_Data[8] + "," + Row_Data[9] + ","  + Row_Data[10] + ","  + Row_Data[11]
+                    );
                     // ログ用
                     idx += 1;
                 }
                 name = bStr.toString();
 
+                // トランザクション OK
+                db_insert.setTransactionSuccessful();
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            } finally {
+                // トランザクション　完了　閉じる
+                db_insert.endTransaction();
             }
+
             runOnUiThread(() -> {
                 try {
                     Thread.sleep(1000);
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-       //         TextView txtList = findViewById(R.id.textview);
-       //         txtList.setText(name);
+                //         TextView txtList = findViewById(R.id.textview);
+                //         txtList.setText(name);
             });
         });
     }  // ============================= END Select
@@ -472,6 +620,28 @@ public class FirstActivity extends AppCompatActivity {
             });
         });
     } // ============================= END connect
+
+    /**
+     *   アクティビティ　バック処理
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // ===  SecondActivity　から戻ってきた場合
+        if (requestCode == REQUEST_CODE_SECOND_ACTIVITY) {
+            if (resultCode == RESULT_CANCELED && data != null) {
+                // SecondActivityからのエラーメッセージを受け取る
+                String errorMessage = data.getStringExtra("error_message_back");
+                if (errorMessage != null) {
+                    // エラーメッセージを表示 (例: トーストメッセージ)
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+
+    }
+
 
 
 }

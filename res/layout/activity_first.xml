@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FirstActivity">
+
+    <!--　日付表示用　-->
+    <TextView
+        android:id="@+id/date_view_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="70dp"
+        android:background="@drawable/bg_border_bottom_02"
+        android:gravity="center_horizontal"
+        android:paddingBottom="7dp"
+        android:textColor="#666666"
+        android:textSize="17dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:letterSpacing="0.2"
+        />
+
+    <!-- アプリtitle -->
+    <TextView
+        android:id="@+id/app_title_01"
+        android:layout_marginHorizontal="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        app:layout_constraintHorizontal_bias="0.5"
+        android:fontFamily="@font/tienne_bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date_view_top"
+        app:layout_constraintRight_toRightOf="parent"
+        android:textSize="16dp"
+        android:letterSpacing="0.3"
+        android:gravity="center_horizontal"
+        />
+
+    <!-- 作業時間　選択 -->
+    <Button
+        android:id="@+id/sagyou_btn"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#F5F5F5"
+        android:drawableBottom="@drawable/ic_baseline_more_time_24"
+        android:text="作業日を選択する"
+        android:textColor="#666666"
+        android:textSize="11dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/app_title_01"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="15dp"
+        />
+    <!-- 作業日　表示 -->
+    <TextView
+        android:id="@+id/sagyou_sentaku_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="70dp"
+        android:background="@drawable/bg_border_bottom_03"
+        android:gravity="center_horizontal"
+        android:paddingBottom="7dp"
+        android:textColor="#666666"
+        android:textSize="17dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sagyou_btn"
+        android:letterSpacing="0.2"
+        />
+
+    <!-- YKKデータ　ダウンロードボタン -->
+    <Button
+        android:id="@+id/ykk_data_btn_01"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="12dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="20dp"
+        android:text="YKK データ ダウンロード"
+        android:textColor="#666666"
+        app:backgroundTint="@color/colorHaiiro"
+        app:icon="@drawable/baseline_file_download_24"
+        app:iconGravity="textStart"
+        app:iconTint="#666666"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sagyou_sentaku_view" />
+
+    <!-- 出荷先　「北陸」「首都圏」 -->
+    <Button
+        android:id="@+id/hokuriku_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="44dp"
+        android:paddingHorizontal="40dp"
+        android:paddingVertical="20dp"
+        android:text="北陸"
+        android:textColor="#ffffff"
+        app:backgroundTint="@drawable/button_background"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/syutoken_btn"
+        app:layout_constraintTop_toBottomOf="@+id/ykk_data_btn_01" />
+
+    <!-- 首都圏 -->
+    <Button
+        android:id="@+id/syutoken_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="44dp"
+        android:paddingHorizontal="40dp"
+        android:paddingVertical="20dp"
+        android:text="首都圏"
+        android:textColor="#ffffff"
+        app:backgroundTint="@color/syutokenn"
+        app:iconGravity="textStart"
+        app:iconTint="#ffffff"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/hokuriku_btn"
+        app:layout_constraintTop_toBottomOf="@+id/ykk_data_btn_01" />
+
+    <!-- ピッキング開始 -->
+    <Button
+        android:id="@+id/pikking_start_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="36dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="20dp"
+        android:text="ピッキング開始"
+        android:textColor="#ffffff"
+        app:backgroundTint="@color/btn_01"
+        app:icon="@drawable/baseline_qr_code_scanner_24"
+        app:iconGravity="textStart"
+        app:iconTint="#ffffff"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/syutoken_btn" />
+
+    <!-- 「アプリを終了」「作業データ一覧」「データ削除」 -->
+
+    <!-- アプリを終了 -->
+    <Button
+        android:id="@+id/app_end_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="65dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
+        android:text="終了"
+        android:textColor="#ffffff"
+        app:backgroundTint="@color/footer_btn"
+        app:iconGravity="textStart"
+        app:iconTint="#ffffff"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/data_reset_btn"
+        app:layout_constraintTop_toBottomOf="@+id/pikking_start_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <!-- データリセット -->
+    <Button
+        android:id="@+id/data_reset_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="65dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="10dp"
+        android:text="データ削除"
+        android:textColor="#ffffff"
+        app:backgroundTint="@color/footer_btn"
+        app:iconGravity="textStart"
+        app:iconTint="#ffffff"
+        app:layout_constraintRight_toLeftOf="@id/list_view_btn"
+        app:layout_constraintLeft_toRightOf="@+id/app_end_btn"
+        app:layout_constraintTop_toBottomOf="@+id/pikking_start_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <!-- 作業データ一覧 -->
+    <Button
+        android:id="@+id/list_view_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="65dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="10dp"
+        android:text="データ一覧"
+        android:textColor="#ffffff"
+        app:backgroundTint="@color/footer_btn"
+        app:iconGravity="textStart"
+        app:iconTint="#ffffff"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/data_reset_btn"
+        app:layout_constraintTop_toBottomOf="@+id/pikking_start_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
