@@ -180,6 +180,12 @@ public class FirstActivity extends AppCompatActivity {
                     // YKK コード
                     YKK_Code_Hokuriku = "325952";
 
+                    // YKK コード 首都圏
+                    YKK_Code_Syutoken[0] = "";
+                    YKK_Code_Syutoken[1] = "";
+                    YKK_Code_Syutoken[2] = "";
+                    YKK_Code_Syutoken[3] = "";
+
                     System.out.println("選択:北陸:::" + YKK_Code_Hokuriku.toString());
 
                 } else {
@@ -213,6 +219,9 @@ public class FirstActivity extends AppCompatActivity {
                     // 状態を更新
                     isSyutokenSelected = true;
                     isHokurikuSelected = false;
+
+                    // YKK コード 北陸
+                    YKK_Code_Hokuriku = "";
 
                     // YKK コード 首都圏
                     YKK_Code_Syutoken[0] = "315125";
@@ -635,8 +644,22 @@ public class FirstActivity extends AppCompatActivity {
                 String errorMessage = data.getStringExtra("error_message_back");
                 if (errorMessage != null) {
                     // エラーメッセージを表示 (例: トーストメッセージ)
-                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+
+                    // ************* アラートダイアログを出す **************
+                 //   Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                    CustomDialog Erro_dialog_data_ScanData = new CustomDialog(FirstActivity.this);
+                    Erro_dialog_data_ScanData.showDialog_Error(
+                            "QR スキャンデータエラー",
+                            "スキャンしたデータはありません。",
+                            "閉じる"
+                    );
+
+                    System.out.println("onActivityResult::: != null if");
+                } else {
+                    System.out.println("onActivityResult::: != null else");
                 }
+            } else {
+                System.out.println("onActivityResult::: != data else");
             }
         }
 

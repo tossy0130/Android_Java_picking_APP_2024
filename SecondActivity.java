@@ -1,5 +1,6 @@
 package com.example.oracleconnect;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
 public class SecondActivity extends AppCompatActivity {
 
     // テキストビュー
-    private TextView unsou_text,syukka_saki_text;
+    private TextView unsou_text,syukka_saki_text,laveru_scan_text,laberu_scan_view,kenpin_suuryou_text,syukka_suuryou_text;
 
     // QR 読取り
     private IntentIntegrator integrator;
@@ -61,15 +62,21 @@ public class SecondActivity extends AppCompatActivity {
         // 首都圏
         String[] YKK_Code_Syutoken = intent.getStringArrayExtra("YKK_Code_Syutoken");
 
+        System.out.println("********* YKK_Code_Hokuriku *********" + YKK_Code_Hokuriku);
+        System.out.println("********* YKK_Code_Syutoken *********" + YKK_Code_Syutoken);
+
         // 北陸が空じゃない場合
         if (YKK_Code_Hokuriku != null && !YKK_Code_Hokuriku.isEmpty()) {
+            System.out.println(" ゲット intent if");
             unsou_text.setText("北陸");
             Syukasaki_Select_CODE = "013370";
         } else if(YKK_Code_Syutoken != null && YKK_Code_Syutoken.length > 0) {
+            System.out.println(" ゲット intent else if");
             unsou_text.setText("首都圏");
             Syukasaki_Select_CODE = "013371";
         } else {
             // === 値が何もない（エラー処理）
+            System.out.println(" ゲット else");
             finish();
             return;
         }
@@ -79,6 +86,23 @@ public class SecondActivity extends AppCompatActivity {
          */
         QR_Scan_Read();
       //  scanBarcode();
+
+        /**
+         *   // 端末 「戻るボタン」制御
+         */
+        OnBackPressedCallback callback_app_finish = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+                Intent intent = new Intent(SecondActivity.this, FirstActivity.class);
+                setResult(RESULT_CANCELED, intent);
+                finish();
+                return;
+
+            }
+        };
+        // コールバックを登録
+        getOnBackPressedDispatcher().addCallback(this, callback_app_finish);
 
     }
 
@@ -177,18 +201,30 @@ public class SecondActivity extends AppCompatActivity {
                 // ========== 2F Aフロア
                 case "315125":
                     SyukaSakiCehck("013371", "YKK首都圏DC 2F Aフロア","選択された出荷先コードと違っています。");
+
+                    // 品番判定
+                    HanteiHinbanHashMap(NounyuuSakiCode_And_Hinbann_HashMap, "013371",SeiHinCode);
                     break;
                 // ========== 2F Bフロア
                 case "315130":
                     SyukaSakiCehck("013371", "YKK首都圏DC 2F Bフロア","選択された出荷先コードと違っています。");
+
+                    // 品番判定
+                    HanteiHinbanHashMap(NounyuuSakiCode_And_Hinbann_HashMap, "013371",SeiHinCode);
                     break;
                 // ========== 2F Cフロア
                 case "315135":
                     SyukaSakiCehck("013371", "YKK首都圏DC 2F Cフロア","選択された出荷先コードと違っています。");
+
+                    // 品番判定
+                    HanteiHinbanHashMap(NounyuuSakiCode_And_Hinbann_HashMap, "013371",SeiHinCode);
                     break;
                 // ========== 2F Dフロア
                 case "315150":
                     SyukaSakiCehck("013371", "YKK首都圏DC 2F Dフロア","選択された出荷先コードと違っています。");
+
+                    // 品番判定
+                    HanteiHinbanHashMap(NounyuuSakiCode_And_Hinbann_HashMap, "013371",SeiHinCode);
                     break;
 
             }
@@ -234,6 +270,16 @@ public class SecondActivity extends AppCompatActivity {
         // 出荷先　表示用
         syukka_saki_text = findViewById(R.id.syukka_saki_text);
 
+        // ラベルスキャン view
+        laberu_scan_view = findViewById(R.id.laberu_scan_view);
+        // ラベルスキャンテキスト
+        laveru_scan_text = findViewById(R.id.laveru_scan_text);
+
+        // 出荷数量テキスト
+        syukka_suuryou_text = findViewById(R.id.syukka_suuryou_text);
+        // 検品数量テキスト
+        kenpin_suuryou_text = findViewById(R.id.kenpin_suuryou_text);
+
         /**
          *  品番チェック用　HashMap 作成
          */
@@ -246,9 +292,15 @@ public class SecondActivity extends AppCompatActivity {
      */
     private void SyukaSakiCehck(String SyukaSakiCode, String SyukaSakiText , String ErrMessage)
     {
+        System.out.println("========= function SyukaSakiCehck 開始 =========");
+
+        System.out.println("function SyukaSakiCode　内:::" + SyukaSakiCode);
+        System.out.println("function SyukaSakiText　内:::" + SyukaSakiText);
+
         if(Syukasaki_Select_CODE.equals(SyukaSakiCode)) {
             syukka_saki_text.setText(SyukaSakiText);
         } else {
+            //=== エラーで FirstActivity へ返す
             Intent intent = new Intent(SecondActivity.this, FirstActivity.class);
             intent.putExtra("error_message_back", ErrMessage);
             setResult(RESULT_CANCELED, intent);
@@ -265,7 +317,7 @@ public class SecondActivity extends AppCompatActivity {
         GlOpenHelper helper_select = new GlOpenHelper(getApplicationContext());
         SQLiteDatabase db_select = helper_select.getReadableDatabase();
 
-        String[] arr_item = new String[2];
+        String[] arr_item = new String[3];
 
         //---- リストを空にする
         NounyuuSakiCode_And_Hinbann_HashMap.clear();
@@ -274,7 +326,7 @@ public class SecondActivity extends AppCompatActivity {
         //------------- スピナー　アイテム取得
         try {
 
-            Cursor cursor = db_select.rawQuery("SELECT Master_column_01,Master_column_10 " +
+            Cursor cursor = db_select.rawQuery("SELECT Master_column_01,Master_column_10,Master_column_06 " +
                     "FROM Master_table WHERE Master_column_01 = '013370' OR " +
                     "Master_column_01 = '013371' ORDER BY Master_column_01;", null);
 
@@ -287,6 +339,9 @@ public class SecondActivity extends AppCompatActivity {
                 idx = cursor.getColumnIndex("Master_column_10");
                 arr_item[1] = cursor.getString(idx);
 
+                idx = cursor.getColumnIndex("Master_column_06");
+                arr_item[2] = cursor.getString(idx);
+
                 // 比較用にハッシュマップに挿入
                 if (!NounyuuSakiCode_And_Hinbann_HashMap.containsKey(arr_item[0])) {
                     // キーが存在しない場合は新しいリストを作成
@@ -294,13 +349,11 @@ public class SecondActivity extends AppCompatActivity {
                 }
                 // リストに品番を追加
                 NounyuuSakiCode_And_Hinbann_HashMap.get(arr_item[0]).add(arr_item[1]);
+                NounyuuSakiCode_And_Hinbann_HashMap.get(arr_item[0]).add(arr_item[2]);
 
                 num++;
 
             } //-------- while END
-
-            // テスト出力
-            PrintHashMap(NounyuuSakiCode_And_Hinbann_HashMap);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -329,6 +382,9 @@ public class SecondActivity extends AppCompatActivity {
         }
     } // =============================== PrintHashMap END
 
+
+
+
     /**
      *  品番　比較 判定（形式：ハッシュマップ）
      */
@@ -343,10 +399,25 @@ public class SecondActivity extends AppCompatActivity {
 
                 for(String val : values) {
                     if(val.equals(HinBan)) {
+                        // ラベルスキャン表示
+                        laveru_scan_text.setText(HinBan);
                         System.out.println("比較OK 含まれている:::key:::" + key + ":::val:::" + val);
-                        
+
+                        // ===
+                        if (values.size() > 1) {
+                            System.out.println("2つ目の値::: " + values.get(1));
+                            syukka_suuryou_text.setText(values.get(1));
+
+                            return;
+                        } else {
+                            System.out.println("2つ目の値は存在しません");
+                        }
+
                     } else {
                         System.out.println("比較NG 含まれていない:::key" + key + ":::val:::" + val);
+
+                        // エラーで戻す処理を入れる
+
                     }
                 }
             }
