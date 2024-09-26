@@ -154,7 +154,7 @@
     <FrameLayout
         android:id="@+id/second_header_view_03"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
+        android:layout_height="230dp"
         android:background="@color/frame_03"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/second_header_view_02"
@@ -250,21 +250,20 @@
                 />
 
             <!-- 商品スキャン　値 -->
-            <TextView
+            <EditText
                 android:id="@+id/syouhin_scan_text"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginTop="10dp"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
-                android:background="@android:color/transparent"
+                android:layout_marginTop="0dp"
+                android:colorControlNormal="#ffffff"
+                android:gravity="left"
                 android:text=""
-                android:textColor="@color/mozi_TyuuKan_Kuro"
-                app:autoSizeMaxTextSize="25sp"
-                app:autoSizeTextType="uniform"
+                android:textColor="#ffffff"
+                android:textSize="25dp"
                 app:layout_constraintTop_toBottomOf="@+id/syouhin_scan_view"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                />
+               />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -274,7 +273,7 @@
     <FrameLayout
         android:id="@+id/second_header_view_04"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="160dp"
         android:background="#ffffff"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/second_header_view_03"
@@ -307,7 +306,7 @@
                 android:id="@+id/syuuka_suuryou_view"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="0dp"
                 android:layout_marginLeft="30dp"
                 app:autoSizeMaxTextSize="20sp"
                 app:autoSizeMinTextSize="8sp"
@@ -339,17 +338,18 @@
                 app:layout_constraintRight_toRightOf="@id/vertical_guideline_04"
                 />
 
+
             <!-- 検品数量　ラベル -->
             <TextView
                 android:id="@+id/kenpin_suuryou_view"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginLeft="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="25dp"
                 app:autoSizeMaxTextSize="20sp"
                 app:autoSizeMinTextSize="8sp"
                 app:autoSizeTextType="uniform"
-                android:text="出荷数量"
+                android:text="検品数量"
                 android:textColor="@color/mozi_TyuuKan_Kuro"
                 android:background="@android:color/transparent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -357,28 +357,29 @@
                 app:layout_constraintLeft_toLeftOf="@+id/vertical_guideline_04_01"
                 app:layout_constraintRight_toRightOf="parent" />
 
-            <!-- 検品数量 -->
-            <TextView
-                android:id="@+id/kenpin_suuryou_text"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
+            <!-- 検品数量　入力 -->
+            <EditText
+                android:id="@+id/kenpin_suuryou_edit"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="0dp"
+                android:colorControlNormal="#666666"
+                android:gravity="center_horizontal"
                 android:text=""
-                android:textColor="@color/mozi_TyuuKan_Kuro"
-                android:background="@android:color/transparent"
-                app:autoSizeMaxTextSize="25sp"
-                app:autoSizeMinTextSize="8sp"
-                app:autoSizeTextType="uniform"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="0dp"
+                android:textColor="#666666"
+                android:textSize="20dp"
                 app:layout_constraintTop_toBottomOf="@+id/kenpin_suuryou_view"
                 app:layout_constraintLeft_toLeftOf="@+id/vertical_guideline_04_01"
-                app:layout_constraintRight_toRightOf="parent"
-                />
+                app:layout_constraintRight_toRightOf="parent" />
+
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </FrameLayout>
+
+
 
 
 
