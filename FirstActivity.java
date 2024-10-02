@@ -4,6 +4,8 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
@@ -39,13 +41,15 @@ public class FirstActivity extends AppCompatActivity {
     private TextView date_view_top, app_title_01, sagyou_sentaku_view;
 
     // button
-    private Button sagyou_btn, hokuriku_btn, syutoken_btn, pikking_start_btn, app_end_btn, ykk_data_btn_01,data_reset_btn;
+    private Button sagyou_btn, hokuriku_btn, syutoken_btn, pikking_start_btn, app_end_btn, ykk_data_btn_01,data_reset_btn,list_view_btn;
 
     // String
     private String get_date_str, get_year, get_month, get_day, Now_date_str;
 
     private boolean isHokurikuSelected = false;
     private boolean isSyutokenSelected = false;
+
+    private String Get_Sagyou_Day;
 
     /**
      * DB 接続用
@@ -59,6 +63,11 @@ public class FirstActivity extends AppCompatActivity {
     private ConnectionClass connectionClass;
     private Connection con;
     private String str, name;
+
+    /**
+     *  YKK データダウンロード用　フラグ
+     */
+    private boolean YkkDataFlg = false;
 
     /**
      *  「北陸」「首都圏DC」
@@ -136,8 +145,10 @@ public class FirstActivity extends AppCompatActivity {
                 System.out.println("作業日 選択 値:::" + sagyou_sentaku_view_STR);
                 if (!(sagyou_sentaku_view_STR.equals(""))) {
 
-                    // YKK データダウンロード
-                    Select_Download();
+                    /**
+                     *  YKK データアラートダイアログ　出現
+                     */
+                    YkkBtnDataDialog();
 
                     System.out.println("ダウンロード日が選択 OK");
                     return;
@@ -313,6 +324,19 @@ public class FirstActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * データ一覧　ボタン
+         */
+        list_view_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(getApplicationContext(),SelectList.class);
+                startActivity(intent);
+
+            }
+        });
+
 
         /**
          *  コールバック処理
@@ -366,6 +390,8 @@ public class FirstActivity extends AppCompatActivity {
         app_end_btn = findViewById(R.id.app_end_btn);
         // データ削除　ボタン
         data_reset_btn = findViewById(R.id.data_reset_btn);
+        // データ一覧　ボタン
+        list_view_btn = findViewById(R.id.list_view_btn);
 
         //　＊＊＊　日付設定 表示
         get_date_str = getNowDate();
@@ -390,6 +416,8 @@ public class FirstActivity extends AppCompatActivity {
         // 作業日　表示
         sagyou_sentaku_view = findViewById(R.id.sagyou_sentaku_view);
 
+        // YKKデータ　ダウンロード用フラグ
+        YkkDataFlg = false;
     }
 
     /**
@@ -481,7 +509,7 @@ public class FirstActivity extends AppCompatActivity {
                 System.out.println("出荷先フラグ:::" + isHokurikuSelected);
 
                 // 作業日　取得
-                String Get_Sagyou_Day = sagyou_sentaku_view.getText().toString();
+                Get_Sagyou_Day = sagyou_sentaku_view.getText().toString();
 
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy年MM月dd日");
                 // 変換後の日付形式を指定する（yyyy-MM-dd）
@@ -587,7 +615,10 @@ public class FirstActivity extends AppCompatActivity {
                 // トランザクション OK
                 db_insert.setTransactionSuccessful();
 
+                YkkDataFlg = true;
+
             } catch (Exception e) {
+                YkkDataFlg = false;
                 throw new RuntimeException(e);
             } finally {
                 // トランザクション　完了　閉じる
@@ -603,6 +634,21 @@ public class FirstActivity extends AppCompatActivity {
                 }
                 //         TextView txtList = findViewById(R.id.textview);
                 //         txtList.setText(name);
+
+                if(YkkDataFlg) {
+                    CustomDialog DownloadShow = new CustomDialog(FirstActivity.this);
+                    DownloadShow.showDialogDefaultOk("ダウンロード完了",
+                            Get_Sagyou_Day +
+                                    "のデータダウロードが完了しました。" ,
+                            "閉じる");
+                } else {
+                    CustomDialog DownloadShowNg = new CustomDialog(FirstActivity.this);
+                    DownloadShowNg.showDialogDefaultNg("ダウンロード失敗",
+                            Get_Sagyou_Day +
+                                    "のデータダウロードに失敗しました。" ,
+                            "閉じる");
+                }
+
             });
         });
     }  // ============================= END Select
@@ -642,11 +688,14 @@ public class FirstActivity extends AppCompatActivity {
             if (resultCode == RESULT_CANCELED && data != null) {
                 // SecondActivityからのエラーメッセージを受け取る
                 String errorMessage = data.getStringExtra("error_message_back");
+
+                // QR を読み取らず戻るボタンを押した場合
+                String error_message_back_QR_nullStr = data.getStringExtra("error_message_back_QR_null");
                 if (errorMessage != null) {
                     // エラーメッセージを表示 (例: トーストメッセージ)
 
                     // ************* アラートダイアログを出す **************
-                 //   Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                    //   Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
                     CustomDialog Erro_dialog_data_ScanData = new CustomDialog(FirstActivity.this);
                     Erro_dialog_data_ScanData.showDialog_Error(
                             "QR スキャンデータエラー",
@@ -655,14 +704,81 @@ public class FirstActivity extends AppCompatActivity {
                     );
 
                     System.out.println("onActivityResult::: != null if");
+
+                    /**
+                     *  QR データが空の場合　(QR を読み取らずに　戻るボタンを押した場合)
+                     */
+                } else if(error_message_back_QR_nullStr != null) {
+
+                    // ************* アラートダイアログを出す **************
+                    //   Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                    CustomDialog Erro_dialog_data_ScanData = new CustomDialog(FirstActivity.this);
+                    Erro_dialog_data_ScanData.showDialog_Error(
+                            "QR スキャンデータエラー",
+                            "QR データが空です。",
+                            "閉じる"
+                    );
+
                 } else {
                     System.out.println("onActivityResult::: != null else");
                 }
             } else {
                 System.out.println("onActivityResult::: != data else");
             }
+        } else {
+            return;
         }
 
+    }
+
+    /**
+     *  YKK データダウンロード　ボタン用　ダイアログ
+     */
+    private void YkkBtnDataDialog()
+    {
+        // タイトルビューを作成
+        TextView titleView = new TextView(FirstActivity.this);
+        titleView.setText("ダウロード日確認");
+        titleView.setTextSize(20);
+        titleView.setTextColor(Color.WHITE);
+        titleView.setBackgroundColor(getResources().getColor(R.color.btn_01));
+        titleView.setPadding(20, 20, 20, 20);
+        titleView.setGravity(Gravity.CENTER);
+
+        // アラートダイアログの作成
+        AlertDialog.Builder builder = new AlertDialog.Builder(FirstActivity.this);
+        builder.setCustomTitle(titleView);  // タイトルセット
+
+        builder.setMessage("選択された作業日以外のデータは削除されます。\n\n" +
+                "選択した日付のデータをダウンロードを行いますか？");  // メッセージセット
+
+        // ボタン設定
+        builder.setPositiveButton("ダウロードする", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // ポジティブボタンの処理
+                // YKK データダウンロード
+                Select_Download();
+
+                return;
+            }
+        });
+
+        builder.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //
+                return;
+            }
+        });
+
+
+        AlertDialog dialog = builder.show();
+        dialog.show();
+
+        // ボタンのスタイルを変更
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#FF4081"));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#FF4081"));
     }
 
 

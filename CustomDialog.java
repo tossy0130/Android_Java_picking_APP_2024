@@ -192,4 +192,88 @@ public class CustomDialog {
 
     } // ======================== （Master_Table_DELETE） END
 
+    /**
+     *  エラー　アラート 01 OK
+     */
+    public void showDialogDefaultOk(String title, String message, String positiveText)
+    {
+
+        // タイトルビューを作成
+        TextView titleView = new TextView(context);
+        titleView.setText(title);
+        titleView.setTextSize(20);
+        titleView.setTextColor(Color.WHITE);
+        titleView.setBackgroundColor(context.getResources().getColor(R.color.btn_01));
+        titleView.setPadding(20, 20, 20, 20);
+        titleView.setGravity(Gravity.CENTER);
+
+        // アラートダイアログの作成
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCustomTitle(titleView);  // タイトルセット
+        builder.setMessage(message);  // メッセージセット
+
+        // ボタン設定
+        builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // ポジティブボタンの処理
+                return;
+            }
+        });
+
+        // ダイアログ表示
+        AlertDialog dialog = builder.create();
+
+        if (!((Activity) context).isFinishing()) {
+            dialog.show();  // ここでダイアログを表示
+        }
+
+        // ボタンのスタイルを変更
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#FF4081"));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#FF4081"));
+
+    } // ============= END function
+
+    /**
+     *  エラー　アラート 01 OK
+     */
+    public void showDialogDefaultNg(String title, String message, String positiveText)
+    {
+
+        // タイトルビューを作成
+        TextView titleView = new TextView(context);
+        titleView.setText(title);
+        titleView.setTextSize(20);
+        titleView.setTextColor(Color.WHITE);
+        titleView.setBackgroundColor(context.getResources().getColor(R.color.hokuriku));
+        titleView.setPadding(20, 20, 20, 20);
+        titleView.setGravity(Gravity.CENTER);
+
+        // アラートダイアログの作成
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCustomTitle(titleView);  // タイトルセット
+        builder.setMessage(message);  // メッセージセット
+
+        // ボタン設定
+        builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // ポジティブボタンの処理
+                return;
+            }
+        });
+
+        // ダイアログ表示
+        AlertDialog dialog = builder.create();
+
+        if (!((Activity) context).isFinishing()) {
+            dialog.show();  // ここでダイアログを表示
+        }
+
+        // ボタンのスタイルを変更
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#FE4A49"));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#FE4A49"));
+
+    } // ============= END function
+
 }

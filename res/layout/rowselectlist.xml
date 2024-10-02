@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- レイアウト開始 -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginVertical="30dp"
+        app:cardCornerRadius="6dp"
+        android:paddingBottom="0dp"
+        android:paddingHorizontal="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/con"
+            android:paddingBottom="5dp"
+            android:layout_marginBottom="15dp"
+            >
+
+            <!-- フラグ変更　ヘッダー -->
+            <FrameLayout
+                android:id="@+id/rowselectHeader"
+                android:layout_width="match_parent"
+                android:layout_height="37dp"
+                android:background="#ffffff"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                >
+
+            </FrameLayout>
+
+            <!-- 商品コード ラベル -->
+            <TextView
+                android:id="@+id/rowText_label_01"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="商品"
+                app:layout_constraintTop_toBottomOf="@+id/rowselectHeader"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:textSize="14sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                />
+
+            <!-- 出荷数量 ラベル -->
+            <TextView
+                android:id="@+id/rowText_label_02"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="出荷数量"
+                app:layout_constraintTop_toBottomOf="@+id/rowselectHeader"
+                app:layout_constraintLeft_toRightOf="@id/rowText_label_01"
+                android:textSize="14sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                />
+
+            <!-- 検品数量 ラベル -->
+            <TextView
+                android:id="@+id/rowText_label_03"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="検品数量"
+                app:layout_constraintTop_toBottomOf="@+id/rowselectHeader"
+                app:layout_constraintLeft_toRightOf="@id/rowText_label_02"
+                android:textSize="14sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                />
+
+            <!-- ===== 入力テキスト ==== -->
+            <!-- 商品コード ラベル -->
+            <TextView
+                android:id="@+id/rowText_input_01"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                app:layout_constraintTop_toBottomOf="@+id/rowText_label_01"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:textSize="14sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                />
+
+            <!-- 出荷数量 ラベル -->
+            <TextView
+                android:id="@+id/rowText_input_02"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                app:layout_constraintTop_toBottomOf="@+id/rowText_label_02"
+                app:layout_constraintLeft_toRightOf="@id/rowText_input_01"
+                android:textSize="14sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                />
+
+            <!-- 検品数量 ラベル -->
+            <TextView
+                android:id="@+id/rowText_input_03"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                app:layout_constraintTop_toBottomOf="@+id/rowText_label_03"
+                app:layout_constraintLeft_toRightOf="@id/rowText_input_02"
+                android:textSize="14sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                />
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

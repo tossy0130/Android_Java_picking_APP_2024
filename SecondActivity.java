@@ -4,6 +4,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -11,9 +12,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -36,6 +42,9 @@ public class SecondActivity extends AppCompatActivity {
 
     // エディットテキスト
     private EditText kenpin_suuryou_edit,syouhin_scan_text;
+
+    // ボタン
+    private Button NextScanBtn;
 
     // QR 読取り
     private IntentIntegrator integrator, integratorBarCode;
@@ -70,6 +79,18 @@ public class SecondActivity extends AppCompatActivity {
         // 首都圏
         String[] YKK_Code_Syutoken = intent.getStringArrayExtra("YKK_Code_Syutoken");
 
+        // 出荷先コード
+        if (intent != null && intent.hasExtra("Syukasaki_Select_CODE")) {
+            // Intentからデータを取得
+            Syukasaki_Select_CODE = intent.getStringExtra("Syukasaki_Select_CODE");
+
+            // 取得したデータを使用
+            System.out.println("取得したデータ: " + Syukasaki_Select_CODE);
+        } else {
+            // Intentがない、またはデータがない場合の処理
+            System.out.println("データが存在しません");
+        }
+
         System.out.println("********* YKK_Code_Hokuriku *********" + YKK_Code_Hokuriku);
         System.out.println("********* YKK_Code_Syutoken *********" + YKK_Code_Syutoken);
 
@@ -82,6 +103,9 @@ public class SecondActivity extends AppCompatActivity {
             System.out.println(" ゲット intent else if");
             unsou_text.setText("首都圏");
             Syukasaki_Select_CODE = "013371";
+        } else if (!Syukasaki_Select_CODE.isEmpty()) {
+
+            System.out.println("********* 再開 *********");
         } else {
             // === 値が何もない（エラー処理）
             System.out.println(" ゲット else");
@@ -113,7 +137,72 @@ public class SecondActivity extends AppCompatActivity {
         // コールバックを登録
         getOnBackPressedDispatcher().addCallback(this, callback_app_finish);
 
-    }
+        /**
+         *  検品数量 エディットテキスト 確定処理
+         */
+        kenpin_suuryou_edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                // 確定ボタンが押された処理
+                if (actionId == EditorInfo.IME_ACTION_DONE ||
+                        (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+
+                    if (event == null || event.getAction() == KeyEvent.ACTION_UP) {
+                        // ソフトキーボードを隠す
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                        // エディットテキストの値を取得
+                        String KenpinVal = kenpin_suuryou_edit.getText().toString();
+                        int KenpinInt = Integer.parseInt(KenpinVal);
+
+                        // 品番（ラベルスキャン）取得
+                        String laveru_scan_textTmp = laveru_scan_text.getText().toString();
+
+                        // 検品数量をログに出力
+                        System.out.println("検品数量 値:::" + KenpinVal);
+
+                        // 検品数量 あり
+                        if (!KenpinVal.isEmpty()) {
+
+                            // ********* Update処理 *********
+                            /**
+                             *  UpdateBarCodeHit（アップデートさせる値, 品番（バーコードスキャン）,納入品C ）
+                             *
+                             */
+                            UpdateBarCodeHit(KenpinInt, laveru_scan_textTmp,Syukasaki_Select_CODE,Common.getNowDate_Sagyou_Start());
+
+                        } else {
+                            // 値が空の場合の処理
+                            System.out.println("検品数量が空です。");
+                        }
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        /**
+         *  「次の商品」
+         */
+        NextScanBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Intentを作成して、同じActivityを再度起動
+                Intent intent = new Intent(SecondActivity.this, SecondActivity.class);
+                intent.putExtra("Syukasaki_Select_CODE", Syukasaki_Select_CODE); // 値をIntentに格納
+
+                finish();
+                startActivity(intent);
+
+            }
+        });
+
+    } // ==================================== END onCreate
 
     /**
      *  QR スキャン起動
@@ -155,7 +244,14 @@ public class SecondActivity extends AppCompatActivity {
 
         // === QR データが空の場合は、処理を返す
         if (scanResult.getContents() == null) {
+            //=== エラーで FirstActivity へ返す
+            Intent intent = new Intent(SecondActivity.this, FirstActivity.class);
+            intent.putExtra("error_message_back_QR_null", "QRコードの値が空です。");
+            setResult(RESULT_CANCELED, intent);
+            finish();
             return;
+
+           // return;
         }
 
         /**
@@ -432,6 +528,9 @@ public class SecondActivity extends AppCompatActivity {
         kenpin_suuryou_edit = (EditText) findViewById(R.id.kenpin_suuryou_edit); // 色段取時間
         kenpin_suuryou_edit.setInputType(InputType.TYPE_CLASS_NUMBER);
 
+        // === 「次の商品」ボタン
+        NextScanBtn = (Button) findViewById(R.id.NextScanBtn);
+
         /**
          *  品番チェック用　HashMap 作成
          */
@@ -635,12 +734,25 @@ public class SecondActivity extends AppCompatActivity {
             String syukka_suuryou_textTmp = syukka_suuryou_text.getText().toString();
             int syukka_suuryou_textInt = Integer.parseInt(syukka_suuryou_textTmp);
 
+            /**
+             *  作業フラグ　判定
+             */
             // 作業完了
-            if(kenpin_suuryou_editInt > 0 && kenpin_suuryou_editInt >= syukka_suuryou_textInt) {
+            if(kenpin_suuryou_editInt > 0 && kenpin_suuryou_editInt == syukka_suuryou_textInt) {
                 values.put(GlOpenHelper.COLUMN_08, "9");
-            } else {
-                // 作業中
+
+            // 検品数量が多い
+            } else if(kenpin_suuryou_editInt > 0 && kenpin_suuryou_editInt > syukka_suuryou_textInt){
+                values.put(GlOpenHelper.COLUMN_08, "9");
+
+            // 出荷数量が多い
+            } else if(kenpin_suuryou_editInt > 0 && kenpin_suuryou_editInt < syukka_suuryou_textInt){
                 values.put(GlOpenHelper.COLUMN_08, "2");
+
+                // *** 0 または、空の場合  ***
+            } else if(kenpin_suuryou_editInt < 0 || kenpin_suuryou_editStr.equals("")) {
+
+                values.put(GlOpenHelper.COLUMN_08, "1");
             }
 
             String whereClause = "Master_column_10 = ? AND Master_column_01 = ?";

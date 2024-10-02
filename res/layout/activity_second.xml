@@ -379,6 +379,64 @@
 
     </FrameLayout>
 
+    <!-- バーコード用　カメラ起動 アイコン -->
+    <ImageButton
+        android:id="@+id/send_view_Move"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="35dp"
+        android:adjustViewBounds="true"
+        android:background="@null"
+        android:scaleType="fitXY"
+        android:src="@drawable/baseline_camera_alt_24_40"
+        app:layout_constraintHorizontal_bias="0.522"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/second_header_view_04"
+        />
+
+    <!-- 「次商品」　ボタン -->
+    <Button
+        android:id="@+id/NextScanBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="15dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
+        android:text="次の商品"
+        android:textColor="#ffffff"
+        app:backgroundTint="@color/footer_btn"
+        app:iconGravity="textStart"
+        app:iconTint="#ffffff"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/AppEndBtn_Second"
+        app:layout_constraintTop_toBottomOf="@+id/send_view_Move"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <!-- 「次商品」　ボタン -->
+    <Button
+        android:id="@+id/AppEndBtn_Second"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="15dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
+        android:text="終了"
+        android:textColor="#ffffff"
+        app:backgroundTint="@color/footer_btn"
+        app:iconGravity="textStart"
+        app:iconTint="#ffffff"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/NextScanBtn"
+        app:layout_constraintTop_toBottomOf="@+id/send_view_Move"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+
 
 
 
